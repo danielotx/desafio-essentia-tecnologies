@@ -34,4 +34,10 @@
       <p class="notes">{{ t.metadata?.notes }}</p>
     }
   </div>
+
+  <div class="actions">
+    <button type="button" class="icon-button" (click)="onEdit()" [disabled]="busy()" aria-label="Editar">
+      ✏️
+    </button>
+  </div>
 </article>

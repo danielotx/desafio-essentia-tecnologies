@@ -1,5 +1,5 @@
 import { CommonModule, DatePipe } from '@angular/common';
-import { Component, computed, input } from '@angular/core';
+import { Component, computed, input, output } from '@angular/core';
 import type { TaskView } from '../../../core/models/task.models';
 
 @Component({
@@ -10,6 +10,9 @@ import type { TaskView } from '../../../core/models/task.models';
 })
 export class TaskCardComponent {
   readonly task = input.required<TaskView>();
+  readonly busy = input(false);
+
+  readonly edited = output<TaskView>();
 
   readonly priorityLabel = computed(() => {
     const p = this.task().metadata?.priority;
@@ -18,4 +21,8 @@ export class TaskCardComponent {
     if (p === 'low') return 'Baixa';
     return null;
   });
+
+  onEdit(): void {
+    this.edited.emit(this.task());
+  }
 }

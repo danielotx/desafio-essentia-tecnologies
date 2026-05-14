@@ -1,0 +1,52 @@
+<form class="task-form" [formGroup]="form" (ngSubmit)="submit()" novalidate>
+  <header>
+    <h2>{{ mode() === 'edit' ? 'Editar tarefa' : 'Nova tarefa' }}</h2>
+  </header>
+
+  <label class="field full">
+    <span>Título <em>*</em></span>
+    <input type="text" formControlName="title" maxlength="200" placeholder="O que precisa ser feito?" />
+    @if (form.controls.title.touched && form.controls.title.errors?.['required']) {
+      <small class="field-error">Informe um título.</small>
+    }
+  </label>
+
+  <label class="field full">
+    <span>Descrição</span>
+    <textarea formControlName="description" rows="2" placeholder="Detalhes adicionais (opcional)"></textarea>
+  </label>
+
+  <div class="row">
+    <label class="field">
+      <span>Prioridade</span>
+      <select formControlName="priority">
+        <option value="">—</option>
+        <option value="low">Baixa</option>
+        <option value="medium">Média</option>
+        <option value="high">Alta</option>
+      </select>
+    </label>
+
+    <label class="field">
+      <span>Vencimento</span>
+      <input type="date" formControlName="dueDate" />
+    </label>
+  </div>
+
+  <label class="field full">
+    <span>Tags</span>
+    <input type="text" formControlName="tags" placeholder="separadas, por, vírgula" />
+  </label>
+
+  <label class="field full">
+    <span>Notas</span>
+    <textarea formControlName="notes" rows="2" placeholder="Anotações pessoais (opcional)"></textarea>
+  </label>
+
+  <div class="actions">
+    <button type="button" class="ghost" (click)="onCancel()" [disabled]="submitting()">Cancelar</button>
+    <button type="submit" class="primary" [disabled]="submitting()">
+      {{ submitting() ? 'Salvando...' : mode() === 'edit' ? 'Salvar alterações' : 'Adicionar tarefa' }}
+    </button>
+  </div>
+</form>

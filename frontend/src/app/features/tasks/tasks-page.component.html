@@ -15,6 +15,9 @@
   <main class="content">
     <section class="toolbar">
       <h1>Minhas tarefas</h1>
+      <button type="button" class="primary" (click)="openCreate()" [disabled]="formOpen()">
+        + Nova tarefa
+      </button>
     </section>
 
     @if (errorMessage()) {
@@ -26,14 +29,23 @@
       </div>
     }
 
+    @if (formOpen()) {
+      <app-task-form
+        [editing]="editing()"
+        [submitting]="submitting()"
+        (saved)="handleSave($event)"
+        (cancelled)="closeForm()"
+      />
+    }
+
     @if (loading()) {
       <p class="state-message">Carregando tarefas...</p>
     } @else if (tasks().length === 0) {
-      <p class="state-message">Nenhuma tarefa ainda.</p>
+      <p class="state-message">Nenhuma tarefa ainda. Clique em "Nova tarefa" para começar.</p>
     } @else {
       <div class="task-list">
         @for (task of tasks(); track task.id) {
-          <app-task-card [task]="task" />
+          <app-task-card [task]="task" (edited)="openEdit($event)" />
         }
       </div>
     }
