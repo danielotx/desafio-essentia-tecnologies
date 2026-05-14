@@ -45,7 +45,13 @@
     } @else {
       <div class="task-list">
         @for (task of tasks(); track task.id) {
-          <app-task-card [task]="task" (edited)="openEdit($event)" />
+          <app-task-card
+            [task]="task"
+            [busy]="isBusy(task.id)"
+            (toggled)="handleToggle($event)"
+            (edited)="openEdit($event)"
+            (removed)="handleRemove($event)"
+          />
         }
       </div>
     }

@@ -27,6 +27,7 @@ export class TasksPageComponent implements OnInit {
   readonly tasks = signal<TaskView[]>([]);
   readonly loading = signal(true);
   readonly errorMessage = signal<string | null>(null);
+  readonly busyTaskIds = signal<Set<number>>(new Set());
   readonly formOpen = signal(false);
   readonly editing = signal<TaskView | null>(null);
   readonly submitting = signal(false);
@@ -91,9 +92,51 @@ export class TasksPageComponent implements OnInit {
     });
   }
 
+  handleToggle(task: TaskView): void {
+    this.markBusy(task.id, true);
+    this.taskService
+      .toggle(task.id)
+      .pipe(finalize(() => this.markBusy(task.id, false)))
+      .subscribe({
+        next: ({ task: updated }) => {
+          this.tasks.update((list) => list.map((t) => (t.id === updated.id ? updated : t)));
+        },
+        error: (err: HttpErrorResponse) => this.errorMessage.set(this.parseError(err)),
+      });
+  }
+
+  handleRemove(task: TaskView): void {
+    const confirmed = window.confirm(`Remover a tarefa "${task.title}"?`);
+    if (!confirmed) return;
+
+    this.markBusy(task.id, true);
+    this.taskService
+      .remove(task.id)
+      .pipe(finalize(() => this.markBusy(task.id, false)))
+      .subscribe({
+        next: () => {
+          this.tasks.update((list) => list.filter((t) => t.id !== task.id));
+        },
+        error: (err: HttpErrorResponse) => this.errorMessage.set(this.parseError(err)),
+      });
+  }
+
   logout(): void {
     this.auth.logout();
     void this.router.navigateByUrl('/login');
+  }
+
+  isBusy(taskId: number): boolean {
+    return this.busyTaskIds().has(taskId);
+  }
+
+  private markBusy(taskId: number, busy: boolean): void {
+    this.busyTaskIds.update((set) => {
+      const next = new Set(set);
+      if (busy) next.add(taskId);
+      else next.delete(taskId);
+      return next;
+    });
   }
 
   private handleAuthFailure(): void {

@@ -12,7 +12,9 @@ export class TaskCardComponent {
   readonly task = input.required<TaskView>();
   readonly busy = input(false);
 
+  readonly toggled = output<TaskView>();
   readonly edited = output<TaskView>();
+  readonly removed = output<TaskView>();
 
   readonly priorityLabel = computed(() => {
     const p = this.task().metadata?.priority;
@@ -22,7 +24,15 @@ export class TaskCardComponent {
     return null;
   });
 
+  onToggle(): void {
+    this.toggled.emit(this.task());
+  }
+
   onEdit(): void {
     this.edited.emit(this.task());
+  }
+
+  onRemove(): void {
+    this.removed.emit(this.task());
   }
 }

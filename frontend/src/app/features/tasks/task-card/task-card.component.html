@@ -1,9 +1,15 @@
 @let t = task();
 
 <article class="task-card" [class.completed]="t.completed">
-  <span class="status" [attr.aria-label]="t.completed ? 'Concluída' : 'Pendente'">
-    {{ t.completed ? '✔' : '○' }}
-  </span>
+  <label class="check">
+    <input
+      type="checkbox"
+      [checked]="t.completed"
+      [disabled]="busy()"
+      (change)="onToggle()"
+      [attr.aria-label]="t.completed ? 'Marcar como pendente' : 'Marcar como concluída'"
+    />
+  </label>
 
   <div class="content">
     <header>
@@ -38,6 +44,9 @@
   <div class="actions">
     <button type="button" class="icon-button" (click)="onEdit()" [disabled]="busy()" aria-label="Editar">
       ✏️
+    </button>
+    <button type="button" class="icon-button danger" (click)="onRemove()" [disabled]="busy()" aria-label="Excluir">
+      🗑️
     </button>
   </div>
 </article>
