@@ -2,21 +2,19 @@
 
 Aplicação web de gerenciamento de tarefas (to-do list) para a empresa fictícia **TechX**, entregue como solução do desafio técnico da vaga de Desenvolvedor(a) Full Stack na Essentia Group.
 
-> Enunciado oficial: `Teste Fullstack Tech - Essentia Group.pdf` (na raiz).
-
 ## Funcionalidades
 
 - Cadastro e login de usuários com **JWT**.
 - CRUD completo de tarefas, isolado por usuário (uma tarefa só é visível/editável por quem a criou).
 - Cada tarefa pode ter metadados ricos: **tags**, **prioridade** (baixa/média/alta), **vencimento**, **anexos** e **notas**.
-- Marcação de tarefas como concluídas/pendentes.
-- Listagem ordenada por status (pendentes primeiro) e data.
+- **Board estilo Kanban** com 3 colunas (Pendente / Em andamento / Concluída) e **drag-and-drop** entre elas.
+- Listagem ordenada por status e data.
 
 ## Stack
 
 | Camada            | Tecnologia                                                          |
 | ----------------- | ------------------------------------------------------------------- |
-| Frontend          | Angular 21 (standalone, Reactive Forms, Signals, lazy routes)       |
+| Frontend          | Angular 21 (standalone, Reactive Forms, Signals, lazy routes, CDK)  |
 | Backend           | Node.js 20+ • TypeScript estrito • Express                          |
 | Banco principal   | MySQL 8 via **Prisma**                                              |
 | Banco secundário  | MongoDB 7 via **Mongoose** (metadados das tarefas)                  |
@@ -49,6 +47,7 @@ Aplicação web de gerenciamento de tarefas (to-do list) para a empresa fictíci
 ├── docker-compose.yml                          # MySQL + MongoDB
 └── README.md
 ```
+
 
 ## Pré-requisitos
 
@@ -147,25 +146,26 @@ Base path: `http://localhost:3000/api`
 
 ### Protegidos (header `Authorization: Bearer <token>`)
 
-| Método   | Path                   | Descrição                                          |
-| -------- | ---------------------- | -------------------------------------------------- |
-| `GET`    | `/me`                  | Dados do usuário autenticado.                      |
-| `GET`    | `/tasks`               | Lista tarefas do usuário (com metadados).          |
-| `POST`   | `/tasks`               | Cria tarefa.                                       |
-| `PUT`    | `/tasks/:id`           | Atualiza tarefa (e/ou metadados).                  |
-| `PATCH`  | `/tasks/:id/toggle`    | Alterna `completed`.                               |
-| `DELETE` | `/tasks/:id`           | Remove tarefa + metadados.                         |
+| Método   | Path                   | Descrição                                                                  |
+| -------- | ---------------------- | -------------------------------------------------------------------------- |
+| `GET`    | `/me`                  | Dados do usuário autenticado.                                              |
+| `GET`    | `/tasks`               | Lista tarefas do usuário (com metadados).                                  |
+| `POST`   | `/tasks`               | Cria tarefa.                                                               |
+| `PUT`    | `/tasks/:id`           | Atualiza tarefa (e/ou metadados).                                          |
+| `PATCH`  | `/tasks/:id/status`    | Define o status da tarefa. Body: `{ "status": "pending\|in_progress\|done" }`. |
+| `DELETE` | `/tasks/:id`           | Remove tarefa + metadados.                                                 |
 
 #### Exemplo de payload de tarefa
 
 ```jsonc
 // POST /api/tasks
 {
-  "title": "Preparar entrega",           // obrigatório
-  "description": "Finalizar o desafio",  // opcional, vai pro MySQL
-  "tags": ["urgente", "desafio"],        // opcional, vai pro MongoDB
-  "priority": "high",                    // low | medium | high
-  "dueDate": "2026-05-20T18:00:00Z",     // ISO 8601
+  "title": "Preparar entrega",                      // obrigatório
+  "description": "Finalizar o desafio",             // opcional, vai pro MySQL
+  "status": "in_progress",                          // pending | in_progress | done (default: pending)
+  "tags": ["urgente", "desafio"],                   // opcional, vai pro MongoDB
+  "priority": "high",                               // low | medium | high
+  "dueDate": "2026-05-20T18:00:00Z",                // ISO 8601
   "attachments": [
     { "name": "PDF", "url": "https://example.com/desafio.pdf" }
   ],

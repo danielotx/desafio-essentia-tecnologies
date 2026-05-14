@@ -46,16 +46,90 @@
     } @else if (tasks().length === 0) {
       <p class="state-message">Nenhuma tarefa ainda. Clique em "Nova tarefa" para começar.</p>
     } @else {
-      <div class="task-list">
-        @for (task of tasks(); track task.id) {
-          <app-task-card
-            [task]="task"
-            [busy]="isBusy(task.id)"
-            (toggled)="handleToggle($event)"
-            (edited)="openEdit($event)"
-            (removed)="handleRemove($event)"
-          />
-        }
+      <div class="board" cdkDropListGroup>
+        <section class="column" data-column="pending">
+          <header class="column-header">
+            <h2>📋 Pendentes</h2>
+            <span class="count">{{ pendingTasks().length }}</span>
+          </header>
+
+          <div
+            class="column-body"
+            cdkDropList
+            [cdkDropListData]="pendingTasks()"
+            (cdkDropListDropped)="handleDrop($event, 'pending')"
+          >
+            @for (task of pendingTasks(); track task.id) {
+              <div cdkDrag [cdkDragData]="task" class="drag-wrapper">
+                <div class="drag-placeholder" *cdkDragPlaceholder></div>
+                <app-task-card
+                  [task]="task"
+                  [busy]="isBusy(task.id)"
+                  (edited)="openEdit($event)"
+                  (removed)="handleRemove($event)"
+                />
+              </div>
+            } @empty {
+              <p class="empty-column">Sem tarefas pendentes.</p>
+            }
+          </div>
+        </section>
+
+        <section class="column" data-column="in_progress">
+          <header class="column-header">
+            <h2>🔄 Em andamento</h2>
+            <span class="count">{{ inProgressTasks().length }}</span>
+          </header>
+
+          <div
+            class="column-body"
+            cdkDropList
+            [cdkDropListData]="inProgressTasks()"
+            (cdkDropListDropped)="handleDrop($event, 'in_progress')"
+          >
+            @for (task of inProgressTasks(); track task.id) {
+              <div cdkDrag [cdkDragData]="task" class="drag-wrapper">
+                <div class="drag-placeholder" *cdkDragPlaceholder></div>
+                <app-task-card
+                  [task]="task"
+                  [busy]="isBusy(task.id)"
+                  (edited)="openEdit($event)"
+                  (removed)="handleRemove($event)"
+                />
+              </div>
+            } @empty {
+              <p class="empty-column">Arraste cards para cá quando começar a executá-los.</p>
+            }
+          </div>
+        </section>
+
+        <section class="column" data-column="done">
+          <header class="column-header">
+            <h2>✅ Concluídas</h2>
+            <span class="count">{{ doneTasks().length }}</span>
+          </header>
+
+          <div
+            class="column-body"
+            cdkDropList
+            [cdkDropListData]="doneTasks()"
+            (cdkDropListDropped)="handleDrop($event, 'done')"
+          >
+            @for (task of doneTasks(); track task.id) {
+              <div cdkDrag [cdkDragData]="task" class="drag-wrapper">
+                <div class="drag-placeholder" *cdkDragPlaceholder></div>
+                <app-task-card
+                  [task]="task"
+                  [busy]="isBusy(task.id)"
+                  (edited)="openEdit($event)"
+                  (removed)="handleRemove($event)"
+                />
+              </div>
+            } @empty {
+              <p class="empty-column">Nenhuma tarefa concluída ainda.</p>
+            }
+          </div>
+        </section>
       </div>
     }
   </main>

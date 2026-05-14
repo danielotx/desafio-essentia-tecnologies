@@ -1,6 +1,6 @@
 import { CommonModule, DatePipe } from '@angular/common';
 import { Component, computed, input, output } from '@angular/core';
-import type { TaskView } from '../../../core/models/task.models';
+import { TASK_STATUS_LABELS, type TaskView } from '../../../core/models/task.models';
 
 @Component({
   selector: 'app-task-card',
@@ -12,7 +12,6 @@ export class TaskCardComponent {
   readonly task = input.required<TaskView>();
   readonly busy = input(false);
 
-  readonly toggled = output<TaskView>();
   readonly edited = output<TaskView>();
   readonly removed = output<TaskView>();
 
@@ -24,9 +23,7 @@ export class TaskCardComponent {
     return null;
   });
 
-  onToggle(): void {
-    this.toggled.emit(this.task());
-  }
+  readonly statusLabel = computed(() => TASK_STATUS_LABELS[this.task().status]);
 
   onEdit(): void {
     this.edited.emit(this.task());

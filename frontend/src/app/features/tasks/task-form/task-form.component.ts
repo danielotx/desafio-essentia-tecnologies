@@ -4,6 +4,7 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import type {
   CreateTaskPayload,
   TaskPriority,
+  TaskStatus,
   TaskView,
   UpdateTaskPayload,
 } from '../../../core/models/task.models';
@@ -11,6 +12,7 @@ import type {
 interface TaskFormValue {
   title: string;
   description: string;
+  status: TaskStatus;
   priority: TaskPriority | '';
   dueDate: string;
   tags: string;
@@ -35,6 +37,7 @@ export class TaskFormComponent implements OnChanges {
   readonly form = this.fb.nonNullable.group({
     title: ['', [Validators.required, Validators.maxLength(200)]],
     description: [''],
+    status: ['pending' as TaskStatus],
     priority: ['' as TaskPriority | ''],
     dueDate: [''],
     tags: [''],
@@ -59,6 +62,7 @@ export class TaskFormComponent implements OnChanges {
         this.form.reset({
           title: '',
           description: '',
+          status: 'pending',
           priority: '',
           dueDate: '',
           tags: '',
@@ -75,6 +79,7 @@ export class TaskFormComponent implements OnChanges {
     this.form.reset({
       title: t.title,
       description: t.description ?? '',
+      status: t.status,
       priority: t.metadata?.priority ?? '',
       dueDate: t.metadata?.dueDate ? t.metadata.dueDate.slice(0, 10) : '',
       tags: (t.metadata?.tags ?? []).join(', '),
@@ -92,6 +97,7 @@ export class TaskFormComponent implements OnChanges {
 
     const payload: CreateTaskPayload & UpdateTaskPayload = {
       title: value.title.trim(),
+      status: value.status,
       ...(value.description.trim() ? { description: value.description.trim() } : {}),
       ...(value.priority ? { priority: value.priority } : {}),
       ...(value.dueDate ? { dueDate: new Date(value.dueDate).toISOString() } : {}),

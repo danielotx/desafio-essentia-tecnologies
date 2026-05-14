@@ -5,12 +5,13 @@
 .task-card {
   display: grid;
   grid-template-columns: auto 1fr auto;
-  gap: 1rem;
+  gap: 0.85rem;
   align-items: flex-start;
-  padding: 1rem 1.25rem;
+  padding: 0.85rem 1rem 0.85rem 0.75rem;
   background: #fff;
   border: 1px solid #e2e8f0;
   border-radius: 10px;
+  border-left-width: 4px;
   transition:
     border-color 0.15s ease,
     box-shadow 0.15s ease;
@@ -20,8 +21,14 @@
     box-shadow: 0 2px 6px rgba(15, 23, 42, 0.04);
   }
 
-  &.completed {
-    opacity: 0.7;
+  &[data-status='pending'] {
+    border-left-color: #94a3b8;
+  }
+  &[data-status='in_progress'] {
+    border-left-color: #f59e0b;
+  }
+  &[data-status='done'] {
+    border-left-color: #10b981;
 
     .title {
       text-decoration: line-through;
@@ -36,13 +43,22 @@
   }
 }
 
-.check {
-  padding-top: 0.15rem;
+.status-indicator {
+  width: 0.75rem;
+  height: 0.75rem;
+  margin-top: 0.45rem;
+  border-radius: 50%;
+  background: #cbd5e1;
 
-  input {
-    width: 1.15rem;
-    height: 1.15rem;
-    cursor: pointer;
+  [data-status='pending'] & {
+    background: #94a3b8;
+  }
+  [data-status='in_progress'] & {
+    background: #f59e0b;
+    box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.18);
+  }
+  [data-status='done'] & {
+    background: #10b981;
   }
 }
 

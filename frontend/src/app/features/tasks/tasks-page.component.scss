@@ -49,7 +49,7 @@
 .content {
   flex: 1;
   width: 100%;
-  max-width: 760px;
+  max-width: 1300px;
   margin: 0 auto;
   padding: 2rem 1.5rem;
   display: flex;
@@ -137,10 +137,126 @@ button {
   gap: 0.5rem;
 }
 
-.task-list {
+.board {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1rem;
+  align-items: flex-start;
+}
+
+.column {
+  background: #eef2f7;
+  border-radius: 12px;
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
+  min-height: 220px;
+  border-top: 4px solid transparent;
+
+  &[data-column='pending'] {
+    border-top-color: #94a3b8;
+  }
+  &[data-column='in_progress'] {
+    border-top-color: #f59e0b;
+  }
+  &[data-column='done'] {
+    border-top-color: #10b981;
+  }
+}
+
+.column-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.85rem 1rem;
+  border-bottom: 1px solid #dbe3ec;
+
+  h2 {
+    margin: 0;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #334155;
+    letter-spacing: 0.01em;
+  }
+
+  .count {
+    background: #cbd5e1;
+    color: #334155;
+    border-radius: 999px;
+    padding: 0.1rem 0.55rem;
+    font-size: 0.78rem;
+    font-weight: 600;
+  }
+}
+
+.column-body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  padding: 0.75rem;
+  min-height: 100px;
+  border-radius: 12px;
+  transition: background-color 0.15s ease;
+
+  &.cdk-drop-list-receiving,
+  &.cdk-drop-list-dragging {
+    background: rgba(37, 99, 235, 0.06);
+  }
+}
+
+.empty-column {
+  margin: 0.5rem 0;
+  padding: 0.75rem;
+  color: #94a3b8;
+  font-size: 0.85rem;
+  font-style: italic;
+  text-align: center;
+  border: 1px dashed #cbd5e1;
+  border-radius: 8px;
+}
+
+.drag-wrapper {
+  &.cdk-drag-preview {
+    box-shadow:
+      0 14px 28px rgba(15, 23, 42, 0.25),
+      0 10px 10px rgba(15, 23, 42, 0.18);
+    border-radius: 10px;
+    cursor: grabbing;
+  }
+
+  &.cdk-drag-placeholder {
+    opacity: 0;
+  }
+
+  &.cdk-drag-animating {
+    transition: transform 200ms cubic-bezier(0, 0, 0.2, 1);
+  }
+
+  & app-task-card {
+    display: block;
+    cursor: grab;
+  }
+
+  &:active app-task-card {
+    cursor: grabbing;
+  }
+}
+
+.drag-placeholder {
+  height: 60px;
+  background: rgba(37, 99, 235, 0.1);
+  border: 2px dashed rgba(37, 99, 235, 0.4);
+  border-radius: 10px;
+  margin-bottom: 0.6rem;
+}
+
+.column-body.cdk-drop-list-dragging .drag-wrapper:not(.cdk-drag-placeholder) {
+  transition: transform 200ms cubic-bezier(0, 0, 0.2, 1);
+}
+
+@media (max-width: 1000px) {
+  .board {
+    grid-template-columns: 1fr;
+  }
 }
 
 @media (max-width: 560px) {

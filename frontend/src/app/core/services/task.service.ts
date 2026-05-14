@@ -4,6 +4,7 @@ import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import type {
   CreateTaskPayload,
+  TaskStatus,
   TaskView,
   UpdateTaskPayload,
 } from '../models/task.models';
@@ -25,8 +26,8 @@ export class TaskService {
     return this.http.put<{ task: TaskView }>(`${this.baseUrl}/${id}`, payload);
   }
 
-  toggle(id: number): Observable<{ task: TaskView }> {
-    return this.http.patch<{ task: TaskView }>(`${this.baseUrl}/${id}/toggle`, {});
+  setStatus(id: number, status: TaskStatus): Observable<{ task: TaskView }> {
+    return this.http.patch<{ task: TaskView }>(`${this.baseUrl}/${id}/status`, { status });
   }
 
   remove(id: number): Observable<void> {

@@ -1,15 +1,7 @@
 @let t = task();
 
-<article class="task-card" [class.completed]="t.completed" [class.busy]="busy()">
-  <label class="check">
-    <input
-      type="checkbox"
-      [checked]="t.completed"
-      [disabled]="busy()"
-      (change)="onToggle()"
-      [attr.aria-label]="t.completed ? 'Marcar como pendente' : 'Marcar como concluída'"
-    />
-  </label>
+<article class="task-card" [attr.data-status]="t.status" [class.busy]="busy()">
+  <span class="status-indicator" [attr.aria-label]="statusLabel()"></span>
 
   <div class="content">
     <header>

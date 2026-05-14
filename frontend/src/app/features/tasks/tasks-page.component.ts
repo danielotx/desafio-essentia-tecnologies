@@ -1,10 +1,18 @@
 import { CommonModule } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, computed, inject, signal } from '@angular/core';
+import {
+  CdkDrag,
+  CdkDragDrop,
+  CdkDragPlaceholder,
+  CdkDropList,
+  CdkDropListGroup,
+} from '@angular/cdk/drag-drop';
 import { Router } from '@angular/router';
 import { finalize } from 'rxjs';
 import type {
   CreateTaskPayload,
+  TaskStatus,
   TaskView,
   UpdateTaskPayload,
 } from '../../core/models/task.models';
@@ -16,7 +24,16 @@ import { TaskFormComponent } from './task-form/task-form.component';
 
 @Component({
   selector: 'app-tasks-page',
-  imports: [CommonModule, ConfirmDialogComponent, TaskCardComponent, TaskFormComponent],
+  imports: [
+    CommonModule,
+    CdkDropListGroup,
+    CdkDropList,
+    CdkDrag,
+    CdkDragPlaceholder,
+    ConfirmDialogComponent,
+    TaskCardComponent,
+    TaskFormComponent,
+  ],
   templateUrl: './tasks-page.component.html',
   styleUrl: './tasks-page.component.scss',
 })
@@ -33,6 +50,12 @@ export class TasksPageComponent implements OnInit {
   readonly editing = signal<TaskView | null>(null);
   readonly submitting = signal(false);
   readonly pendingRemoval = signal<TaskView | null>(null);
+
+  readonly pendingTasks = computed(() => this.tasks().filter((t) => t.status === 'pending'));
+  readonly inProgressTasks = computed(() =>
+    this.tasks().filter((t) => t.status === 'in_progress'),
+  );
+  readonly doneTasks = computed(() => this.tasks().filter((t) => t.status === 'done'));
 
   readonly currentUser = this.auth.user;
 
@@ -94,10 +117,19 @@ export class TasksPageComponent implements OnInit {
     });
   }
 
-  handleToggle(task: TaskView): void {
+  handleDrop(event: CdkDragDrop<TaskView[]>, targetStatus: TaskStatus): void {
+    if (event.previousContainer === event.container) {
+      // Reordenar dentro da mesma coluna não é persistido (modelo não tem ordem).
+      return;
+    }
+
+    const task = event.item.data as TaskView;
+    if (task.status === targetStatus) return;
+    if (this.isBusy(task.id)) return;
+
     this.markBusy(task.id, true);
     this.taskService
-      .toggle(task.id)
+      .setStatus(task.id, targetStatus)
       .pipe(finalize(() => this.markBusy(task.id, false)))
       .subscribe({
         next: ({ task: updated }) => {

@@ -18,6 +18,15 @@
 
   <div class="row">
     <label class="field">
+      <span>Status</span>
+      <select formControlName="status">
+        <option value="pending">Pendente</option>
+        <option value="in_progress">Em andamento</option>
+        <option value="done">Concluída</option>
+      </select>
+    </label>
+
+    <label class="field">
       <span>Prioridade</span>
       <select formControlName="priority">
         <option value="">—</option>
@@ -26,12 +35,12 @@
         <option value="high">Alta</option>
       </select>
     </label>
-
-    <label class="field">
-      <span>Vencimento</span>
-      <input type="date" formControlName="dueDate" />
-    </label>
   </div>
+
+  <label class="field full">
+    <span>Vencimento</span>
+    <input type="date" formControlName="dueDate" />
+  </label>
 
   <label class="field full">
     <span>Tags</span>
