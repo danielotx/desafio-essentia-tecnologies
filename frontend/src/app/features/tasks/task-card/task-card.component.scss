@@ -1,0 +1,160 @@
+:host {
+  display: block;
+}
+
+.task-card {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 1rem;
+  align-items: flex-start;
+  padding: 1rem 1.25rem;
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  transition:
+    border-color 0.15s ease,
+    box-shadow 0.15s ease;
+
+  &:hover {
+    border-color: #cbd5e1;
+    box-shadow: 0 2px 6px rgba(15, 23, 42, 0.04);
+  }
+
+  &.completed {
+    opacity: 0.7;
+
+    .title {
+      text-decoration: line-through;
+      color: #64748b;
+    }
+  }
+}
+
+.check {
+  padding-top: 0.15rem;
+
+  input {
+    width: 1.15rem;
+    height: 1.15rem;
+    cursor: pointer;
+  }
+}
+
+.content {
+  min-width: 0;
+
+  header {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0.5rem;
+  }
+
+  .title {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 600;
+    color: #0f172a;
+    word-break: break-word;
+  }
+
+  .description {
+    margin: 0.35rem 0 0;
+    color: #475569;
+    font-size: 0.9rem;
+    white-space: pre-wrap;
+  }
+
+  .notes {
+    margin: 0.35rem 0 0;
+    color: #64748b;
+    font-size: 0.85rem;
+    font-style: italic;
+  }
+
+  .meta-row {
+    margin-top: 0.5rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+  }
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.15rem 0.55rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  background: #e2e8f0;
+  color: #334155;
+}
+
+.badge.tag {
+  background: #ede9fe;
+  color: #5b21b6;
+}
+
+.badge.due {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.badge.priority[data-priority='high'] {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.badge.priority[data-priority='medium'] {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.badge.priority[data-priority='low'] {
+  background: #dbeafe;
+  color: #1e40af;
+}
+
+.actions {
+  display: flex;
+  gap: 0.25rem;
+}
+
+.icon-button {
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  padding: 0.35rem 0.5rem;
+  cursor: pointer;
+  font-size: 1rem;
+  line-height: 1;
+  transition:
+    background-color 0.15s ease,
+    border-color 0.15s ease;
+
+  &:hover:not(:disabled) {
+    background: #f1f5f9;
+    border-color: #e2e8f0;
+  }
+
+  &.danger:hover:not(:disabled) {
+    background: #fee2e2;
+    border-color: #fca5a5;
+  }
+
+  &:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+  }
+}
+
+@media (max-width: 560px) {
+  .task-card {
+    grid-template-columns: auto 1fr;
+  }
+  .actions {
+    grid-column: 1 / -1;
+    justify-content: flex-end;
+  }
+}

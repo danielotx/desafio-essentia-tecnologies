@@ -23,7 +23,7 @@ export const routes: Routes = [
     path: 'tasks',
     canActivate: [authGuard],
     loadComponent: () =>
-      import('./features/tasks/tasks-page.placeholder').then((m) => m.TasksPagePlaceholder),
+      import('./features/tasks/tasks-page.component').then((m) => m.TasksPageComponent),
   },
   {
     path: '**',

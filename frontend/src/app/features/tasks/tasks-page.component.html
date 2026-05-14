@@ -1,0 +1,41 @@
+<div class="page">
+  <header class="topbar">
+    <div class="brand">
+      <strong>TechX</strong>
+      <span>Tarefas</span>
+    </div>
+    <div class="user-area">
+      @if (currentUser(); as user) {
+        <span class="user-name">{{ user.name || user.email }}</span>
+      }
+      <button type="button" class="ghost" (click)="logout()">Sair</button>
+    </div>
+  </header>
+
+  <main class="content">
+    <section class="toolbar">
+      <h1>Minhas tarefas</h1>
+    </section>
+
+    @if (errorMessage()) {
+      <div class="alert" role="alert">
+        {{ errorMessage() }}
+        <button type="button" class="alert-close" (click)="errorMessage.set(null)" aria-label="Fechar">
+          ×
+        </button>
+      </div>
+    }
+
+    @if (loading()) {
+      <p class="state-message">Carregando tarefas...</p>
+    } @else if (tasks().length === 0) {
+      <p class="state-message">Nenhuma tarefa ainda.</p>
+    } @else {
+      <div class="task-list">
+        @for (task of tasks(); track task.id) {
+          <app-task-card [task]="task" />
+        }
+      </div>
+    }
+  </main>
+</div>

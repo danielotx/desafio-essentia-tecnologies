@@ -1,0 +1,37 @@
+@let t = task();
+
+<article class="task-card" [class.completed]="t.completed">
+  <span class="status" [attr.aria-label]="t.completed ? 'Concluída' : 'Pendente'">
+    {{ t.completed ? '✔' : '○' }}
+  </span>
+
+  <div class="content">
+    <header>
+      <h2 class="title">{{ t.title }}</h2>
+      @if (priorityLabel()) {
+        <span class="badge priority" [attr.data-priority]="t.metadata?.priority">
+          {{ priorityLabel() }}
+        </span>
+      }
+    </header>
+
+    @if (t.description) {
+      <p class="description">{{ t.description }}</p>
+    }
+
+    @if (t.metadata?.tags?.length || t.metadata?.dueDate) {
+      <div class="meta-row">
+        @if (t.metadata?.dueDate) {
+          <span class="badge due">📅 {{ t.metadata?.dueDate | date: 'dd/MM/yyyy' }}</span>
+        }
+        @for (tag of t.metadata?.tags ?? []; track tag) {
+          <span class="badge tag">#{{ tag }}</span>
+        }
+      </div>
+    }
+
+    @if (t.metadata?.notes) {
+      <p class="notes">{{ t.metadata?.notes }}</p>
+    }
+  </div>
+</article>
