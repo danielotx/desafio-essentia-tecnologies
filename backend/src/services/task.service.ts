@@ -3,7 +3,7 @@ import { prisma } from '../config/prisma';
 import { logger } from '../config/logger';
 import { HttpError } from '../middlewares/error-handler';
 import { TaskMetadata } from '../models/task-metadata.model';
-import type { CreateTaskInput } from '../schemas/task.schema';
+import type { CreateTaskInput, UpdateTaskInput } from '../schemas/task.schema';
 
 export interface TaskMetadataView {
   tags: string[];
@@ -143,5 +143,53 @@ export const taskService = {
     const task = await this.findOwnedTask(userId, taskId);
     const metadata = await readMetadata(task.id);
     return toTaskView(task, metadata);
+  },
+
+  async update(userId: number, taskId: number, input: UpdateTaskInput): Promise<TaskView> {
+    await this.findOwnedTask(userId, taskId);
+
+    const mysqlPatch: Record<string, unknown> = {};
+    if (input.title !== undefined) mysqlPatch.title = input.title;
+    if (input.description !== undefined) mysqlPatch.description = input.description ?? null;
+    if (input.completed !== undefined) mysqlPatch.completed = input.completed;
+
+    let updatedTask: Task;
+    if (Object.keys(mysqlPatch).length > 0) {
+      updatedTask = await prisma.task.update({ where: { id: taskId }, data: mysqlPatch });
+    } else {
+      updatedTask = await this.findOwnedTask(userId, taskId);
+    }
+
+    if (hasMetadataFields(input)) {
+      await TaskMetadata.updateOne(
+        { taskId },
+        { $set: buildMetadataPayload(input) },
+        { upsert: true },
+      );
+    }
+
+    const metadata = await readMetadata(taskId);
+    return toTaskView(updatedTask, metadata);
+  },
+
+  async toggleCompleted(userId: number, taskId: number): Promise<TaskView> {
+    const task = await this.findOwnedTask(userId, taskId);
+    const updated = await prisma.task.update({
+      where: { id: taskId },
+      data: { completed: !task.completed },
+    });
+    const metadata = await readMetadata(taskId);
+    return toTaskView(updated, metadata);
+  },
+
+  async remove(userId: number, taskId: number): Promise<void> {
+    await this.findOwnedTask(userId, taskId);
+    await prisma.task.delete({ where: { id: taskId } });
+    await TaskMetadata.deleteOne({ taskId }).catch((err) => {
+      logger.error(
+        { err, taskId },
+        'Falha ao remover metadados da tarefa no MongoDB; estado pode ficar órfão',
+      );
+    });
   },
 };

@@ -20,10 +20,12 @@ export function errorHandler(
   _next: NextFunction,
 ): void {
   if (err instanceof ZodError) {
+    const flat = err.flatten();
     res.status(400).json({
       error: 'ValidationError',
       message: 'Payload inválido',
-      details: err.flatten().fieldErrors,
+      details: flat.fieldErrors,
+      formErrors: flat.formErrors,
     });
     return;
   }

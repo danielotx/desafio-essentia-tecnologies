@@ -1,6 +1,6 @@
 import type { NextFunction, Request, Response } from 'express';
 import { HttpError } from '../middlewares/error-handler';
-import { createTaskSchema } from '../schemas/task.schema';
+import { createTaskSchema, taskIdParamSchema, updateTaskSchema } from '../schemas/task.schema';
 import { taskService } from '../services/task.service';
 
 function requireUserId(req: Request): number {
@@ -27,6 +27,40 @@ export const taskController = {
       const userId = requireUserId(req);
       const tasks = await taskService.list(userId);
       res.json({ tasks });
+    } catch (err) {
+      next(err);
+    }
+  },
+
+  async update(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const userId = requireUserId(req);
+      const { id } = taskIdParamSchema.parse(req.params);
+      const input = updateTaskSchema.parse(req.body);
+      const task = await taskService.update(userId, id, input);
+      res.json({ task });
+    } catch (err) {
+      next(err);
+    }
+  },
+
+  async toggle(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const userId = requireUserId(req);
+      const { id } = taskIdParamSchema.parse(req.params);
+      const task = await taskService.toggleCompleted(userId, id);
+      res.json({ task });
+    } catch (err) {
+      next(err);
+    }
+  },
+
+  async remove(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const userId = requireUserId(req);
+      const { id } = taskIdParamSchema.parse(req.params);
+      await taskService.remove(userId, id);
+      res.status(204).send();
     } catch (err) {
       next(err);
     }
