@@ -1,6 +1,6 @@
 @let t = task();
 
-<article class="task-card" [class.completed]="t.completed">
+<article class="task-card" [class.completed]="t.completed" [class.busy]="busy()">
   <label class="check">
     <input
       type="checkbox"

@@ -131,6 +131,10 @@ button {
   margin: 2rem 0;
   text-align: center;
   color: #64748b;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
 }
 
 .task-list {

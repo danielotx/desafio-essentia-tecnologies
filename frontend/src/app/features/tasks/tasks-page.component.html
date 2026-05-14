@@ -39,7 +39,10 @@
     }
 
     @if (loading()) {
-      <p class="state-message">Carregando tarefas...</p>
+      <p class="state-message" aria-live="polite">
+        <span class="spinner" aria-hidden="true"></span>
+        Carregando tarefas...
+      </p>
     } @else if (tasks().length === 0) {
       <p class="state-message">Nenhuma tarefa ainda. Clique em "Nova tarefa" para começar.</p>
     } @else {
