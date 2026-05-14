@@ -1,6 +1,7 @@
 import { createApp } from './app';
 import { env } from './config/env';
 import { logger } from './config/logger';
+import { prisma } from './config/prisma';
 
 const app = createApp();
 
@@ -10,13 +11,17 @@ const server = app.listen(env.PORT, () => {
 
 function shutdown(signal: NodeJS.Signals): void {
   logger.info(`Recebido ${signal}. Encerrando servidor...`);
-  server.close((err) => {
+  server.close(async (err) => {
     if (err) {
-      logger.error({ err }, 'Erro ao encerrar servidor');
-      process.exit(1);
+      logger.error({ err }, 'Erro ao encerrar servidor HTTP');
     }
-    logger.info('Servidor encerrado com sucesso.');
-    process.exit(0);
+    try {
+      await prisma.$disconnect();
+      logger.info('Conexão com MySQL encerrada.');
+    } catch (disconnectErr) {
+      logger.error({ err: disconnectErr }, 'Erro ao desconectar do MySQL');
+    }
+    process.exit(err ? 1 : 0);
   });
 }
 
