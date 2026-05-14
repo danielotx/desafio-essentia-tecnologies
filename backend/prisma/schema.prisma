@@ -23,16 +23,23 @@ model User {
 }
 
 model Task {
-  id          Int      @id @default(autoincrement())
-  title       String   @db.VarChar(200)
-  description String?  @db.Text
-  completed   Boolean  @default(false)
-  userId      Int      @map("user_id")
-  createdAt   DateTime @default(now()) @map("created_at")
-  updatedAt   DateTime @updatedAt @map("updated_at")
+  id          Int        @id @default(autoincrement())
+  title       String     @db.VarChar(200)
+  description String?    @db.Text
+  status      TaskStatus @default(pending)
+  userId      Int        @map("user_id")
+  createdAt   DateTime   @default(now()) @map("created_at")
+  updatedAt   DateTime   @updatedAt @map("updated_at")
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
+  @@index([status])
   @@map("tasks")
+}
+
+enum TaskStatus {
+  pending
+  in_progress
+  done
 }

@@ -1,6 +1,11 @@
 import type { NextFunction, Request, Response } from 'express';
 import { HttpError } from '../middlewares/error-handler';
-import { createTaskSchema, taskIdParamSchema, updateTaskSchema } from '../schemas/task.schema';
+import {
+  createTaskSchema,
+  setStatusSchema,
+  taskIdParamSchema,
+  updateTaskSchema,
+} from '../schemas/task.schema';
 import { taskService } from '../services/task.service';
 
 function requireUserId(req: Request): number {
@@ -44,11 +49,12 @@ export const taskController = {
     }
   },
 
-  async toggle(req: Request, res: Response, next: NextFunction): Promise<void> {
+  async setStatus(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const userId = requireUserId(req);
       const { id } = taskIdParamSchema.parse(req.params);
-      const task = await taskService.toggleCompleted(userId, id);
+      const { status } = setStatusSchema.parse(req.body);
+      const task = await taskService.setStatus(userId, id, status);
       res.json({ task });
     } catch (err) {
       next(err);

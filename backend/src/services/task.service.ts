@@ -1,9 +1,15 @@
-import type { Task } from '@prisma/client';
+import type { Task, TaskStatus } from '@prisma/client';
 import { prisma } from '../config/prisma';
 import { logger } from '../config/logger';
 import { HttpError } from '../middlewares/error-handler';
 import { TaskMetadata } from '../models/task-metadata.model';
 import type { CreateTaskInput, UpdateTaskInput } from '../schemas/task.schema';
+
+export const TASK_STATUS_ORDER: Record<TaskStatus, number> = {
+  pending: 0,
+  in_progress: 1,
+  done: 2,
+};
 
 export interface TaskMetadataView {
   tags: string[];
@@ -17,7 +23,7 @@ export interface TaskView {
   id: number;
   title: string;
   description: string | null;
-  completed: boolean;
+  status: TaskStatus;
   createdAt: Date;
   updatedAt: Date;
   metadata: TaskMetadataView | null;
@@ -28,7 +34,7 @@ function toTaskView(task: Task, metadata: TaskMetadataView | null): TaskView {
     id: task.id,
     title: task.title,
     description: task.description,
-    completed: task.completed,
+    status: task.status,
     createdAt: task.createdAt,
     updatedAt: task.updatedAt,
     metadata,
@@ -74,6 +80,7 @@ export const taskService = {
         userId,
         title: input.title,
         description: input.description ?? null,
+        status: input.status ?? 'pending',
       },
     });
 
@@ -108,10 +115,16 @@ export const taskService = {
   async list(userId: number): Promise<TaskView[]> {
     const tasks = await prisma.task.findMany({
       where: { userId },
-      orderBy: [{ completed: 'asc' }, { createdAt: 'desc' }],
+      orderBy: [{ createdAt: 'desc' }],
     });
 
     if (tasks.length === 0) return [];
+
+    tasks.sort((a, b) => {
+      const statusDiff = TASK_STATUS_ORDER[a.status] - TASK_STATUS_ORDER[b.status];
+      if (statusDiff !== 0) return statusDiff;
+      return b.createdAt.getTime() - a.createdAt.getTime();
+    });
 
     const ids = tasks.map((t) => t.id);
     const docs = await TaskMetadata.find({ taskId: { $in: ids } }).lean();
@@ -151,7 +164,7 @@ export const taskService = {
     const mysqlPatch: Record<string, unknown> = {};
     if (input.title !== undefined) mysqlPatch.title = input.title;
     if (input.description !== undefined) mysqlPatch.description = input.description ?? null;
-    if (input.completed !== undefined) mysqlPatch.completed = input.completed;
+    if (input.status !== undefined) mysqlPatch.status = input.status;
 
     let updatedTask: Task;
     if (Object.keys(mysqlPatch).length > 0) {
@@ -172,11 +185,11 @@ export const taskService = {
     return toTaskView(updatedTask, metadata);
   },
 
-  async toggleCompleted(userId: number, taskId: number): Promise<TaskView> {
-    const task = await this.findOwnedTask(userId, taskId);
+  async setStatus(userId: number, taskId: number, status: TaskStatus): Promise<TaskView> {
+    await this.findOwnedTask(userId, taskId);
     const updated = await prisma.task.update({
       where: { id: taskId },
-      data: { completed: !task.completed },
+      data: { status },
     });
     const metadata = await readMetadata(taskId);
     return toTaskView(updated, metadata);
