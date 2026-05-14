@@ -10,12 +10,13 @@ import type {
 } from '../../core/models/task.models';
 import { AuthService } from '../../core/services/auth.service';
 import { TaskService } from '../../core/services/task.service';
+import { ConfirmDialogComponent } from '../../shared/confirm-dialog/confirm-dialog.component';
 import { TaskCardComponent } from './task-card/task-card.component';
 import { TaskFormComponent } from './task-form/task-form.component';
 
 @Component({
   selector: 'app-tasks-page',
-  imports: [CommonModule, TaskCardComponent, TaskFormComponent],
+  imports: [CommonModule, ConfirmDialogComponent, TaskCardComponent, TaskFormComponent],
   templateUrl: './tasks-page.component.html',
   styleUrl: './tasks-page.component.scss',
 })
@@ -31,6 +32,7 @@ export class TasksPageComponent implements OnInit {
   readonly formOpen = signal(false);
   readonly editing = signal<TaskView | null>(null);
   readonly submitting = signal(false);
+  readonly pendingRemoval = signal<TaskView | null>(null);
 
   readonly currentUser = this.auth.user;
 
@@ -106,8 +108,18 @@ export class TasksPageComponent implements OnInit {
   }
 
   handleRemove(task: TaskView): void {
-    const confirmed = window.confirm(`Remover a tarefa "${task.title}"?`);
-    if (!confirmed) return;
+    this.pendingRemoval.set(task);
+  }
+
+  cancelRemoval(): void {
+    if (this.pendingRemoval() && !this.isBusy(this.pendingRemoval()!.id)) {
+      this.pendingRemoval.set(null);
+    }
+  }
+
+  confirmRemoval(): void {
+    const task = this.pendingRemoval();
+    if (!task) return;
 
     this.markBusy(task.id, true);
     this.taskService
@@ -116,8 +128,12 @@ export class TasksPageComponent implements OnInit {
       .subscribe({
         next: () => {
           this.tasks.update((list) => list.filter((t) => t.id !== task.id));
+          this.pendingRemoval.set(null);
         },
-        error: (err: HttpErrorResponse) => this.errorMessage.set(this.parseError(err)),
+        error: (err: HttpErrorResponse) => {
+          this.errorMessage.set(this.parseError(err));
+          this.pendingRemoval.set(null);
+        },
       });
   }
 

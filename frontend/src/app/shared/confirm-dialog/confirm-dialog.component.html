@@ -1,0 +1,32 @@
+<div class="overlay" (click)="onCancel()" aria-hidden="true"></div>
+
+<div
+  class="dialog"
+  role="dialog"
+  aria-modal="true"
+  [attr.aria-labelledby]="'confirm-dialog-title'"
+>
+  <header>
+    <h2 id="confirm-dialog-title">{{ title() }}</h2>
+  </header>
+
+  @if (message()) {
+    <p class="message">{{ message() }}</p>
+  }
+
+  <footer>
+    <button type="button" class="ghost" (click)="onCancel()" [disabled]="busy()">
+      {{ cancelText() }}
+    </button>
+    <button
+      #confirmBtn
+      type="button"
+      [class.danger]="danger()"
+      [class.primary]="!danger()"
+      (click)="onConfirm()"
+      [disabled]="busy()"
+    >
+      {{ busy() ? 'Removendo...' : confirmText() }}
+    </button>
+  </footer>
+</div>

@@ -60,3 +60,16 @@
     }
   </main>
 </div>
+
+@if (pendingRemoval(); as task) {
+  <app-confirm-dialog
+    title="Remover tarefa?"
+    [message]="'Esta ação não pode ser desfeita. A tarefa &quot;' + task.title + '&quot; será removida permanentemente.'"
+    confirmText="Remover"
+    cancelText="Cancelar"
+    [danger]="true"
+    [busy]="isBusy(task.id)"
+    (confirmed)="confirmRemoval()"
+    (cancelled)="cancelRemoval()"
+  />
+}
