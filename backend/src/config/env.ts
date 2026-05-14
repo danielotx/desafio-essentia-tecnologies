@@ -8,7 +8,7 @@ const envSchema = z.object({
   CORS_ORIGIN: z.string().default('http://localhost:4200'),
   DATABASE_URL: z.string().url().optional(),
   MONGODB_URI: z.string().url().optional(),
-  JWT_SECRET: z.string().min(16).optional(),
+  JWT_SECRET: z.string().min(16, 'JWT_SECRET deve ter ao menos 16 caracteres'),
   JWT_EXPIRES_IN: z.string().default('1d'),
 });
 

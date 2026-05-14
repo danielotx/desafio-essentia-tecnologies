@@ -1,7 +1,8 @@
 import bcrypt from 'bcryptjs';
 import { prisma } from '../config/prisma';
+import { signAccessToken } from '../lib/jwt';
 import { HttpError } from '../middlewares/error-handler';
-import type { RegisterInput } from '../schemas/auth.schema';
+import type { LoginInput, RegisterInput } from '../schemas/auth.schema';
 
 const BCRYPT_ROUNDS = 10;
 
@@ -10,6 +11,11 @@ export interface PublicUser {
   email: string;
   name: string | null;
   createdAt: Date;
+}
+
+export interface AuthResult {
+  user: PublicUser;
+  token: string;
 }
 
 function toPublicUser(user: {
@@ -44,5 +50,20 @@ export const authService = {
     });
 
     return toPublicUser(user);
+  },
+
+  async login(input: LoginInput): Promise<AuthResult> {
+    const user = await prisma.user.findUnique({ where: { email: input.email } });
+    if (!user) {
+      throw new HttpError(401, 'Credenciais inválidas.');
+    }
+
+    const matches = await bcrypt.compare(input.password, user.passwordHash);
+    if (!matches) {
+      throw new HttpError(401, 'Credenciais inválidas.');
+    }
+
+    const token = signAccessToken(user.id);
+    return { user: toPublicUser(user), token };
   },
 };
